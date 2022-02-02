@@ -1,31 +1,6 @@
-# Slim Route Attributes
-Slim Route Attributes is a route scanner that uses PHP attributes.
-
-## Installation
-```bash
-$ composer require rodrifarias/slim-route-attributes
-```
-
-## Hello World using AppFactory
-Create file public/index.php.
-
-```php
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
-
-use Rodrifarias\SlimRouteAttributes\App\AppSlimFactory;
-
-$pathDirControllers = __DIR__ . '/your-dir';
-
-$app = AppSlimFactory::create();
-$app->registerRoutes($pathDirControllers);
-$app->run();
-```
-
-## Creating a controller
-```php
-<?php
+namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\Route\RoutesControllers\Controller;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -40,7 +15,7 @@ use Rodrifarias\SlimRouteAttributes\Attributes\Route;
 use Rodrifarias\SlimRouteAttributes\Tests\Unit\Route\Middleware\MiddlewareAfter;
 use Rodrifarias\SlimRouteAttributes\Tests\Unit\Route\Middleware\MiddlewareBefore;
 
-#[Route('/')]
+#[Route('/home')]
 class HomeController
 {
     #[Get, PublicAccess(true)]
@@ -62,8 +37,7 @@ class HomeController
     public function show(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->getBody()->write('Hello ' . $args['id']);
-        $response->withHeader('Content-type', 'application/json');
-        return $response->withStatus(200);
+        return $response->withHeader('Content-type', 'application/json');
     }
 
     #[Post, Middleware([MiddlewareAfter::class, MiddlewareBefore::class])]
@@ -93,61 +67,3 @@ class HomeController
         return $response->withHeader('Content-type', 'application/json');
     }
 }
-```
-
-You may quickly test this using the built-in PHP server:
-```bash
-$ php -S localhost:8000 -t public
-```
-Going to http://localhost:8000 will now display "Home".
-
-## Available Http Methods
-GET, POST, PUT, DELETE, PATCH
-
-## Middleware in Route
-To run a middleware you have to add the following attribute (Middleware) in the method
-```php
-#[Route('/home')]
-class HomeController
-{
-    #[Get, PublicAccess(true), Middleware([MiddlewareAfter::class])]
-    public function showAll(RequestInterface $request, ResponseInterface $response): ResponseInterface
-    {
-        $response->getBody()->write('Home');
-        return $response->withHeader('Content-type', 'application/json');
-    }
-}
-```
-## Command to show all registered routes
-```bash
-$ vendor\bin\show-routes --path=/your-dir
-```
-
-| Route | Http Method | Controller Method | IsPublic |
-|-------|-------------|-------------------|----------|
-| /     | GET         | Controller:method | yes      |
-
-## Get list routes
-```php
-<?php
-
-use Rodrifarias\SlimRouteAttributes\ScanRoutes;
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-$scan = new ScanRoutes();
-$routes = $scan->getRoutes(__DIR__ . '/tests');
-
-foreach ($routes as $route) {
-    echo $route . PHP_EOL . PHP_EOL;
-}
-```
-
-## Tests
-To execute the test suite, you'll need to install all development dependencies.
-
-```bash
-$ git clone https://github.com/rodrifarias/slim-route-attributes
-$ composer install
-$ composer test
-```
