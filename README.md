@@ -120,7 +120,7 @@ class HomeController
 ```
 ## Command to show all registered routes
 ```bash
-$ vendor\bin\show-routes --path=/your-dir
+$ php vendor\bin\show-routes.php show-routes --path=/your-dir
 ```
 
 | Route | Http Method | Controller Method | IsPublic |
