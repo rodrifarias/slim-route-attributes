@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require 'vendor/autoload.php';
 
 use Rodrifarias\SlimRouteAttributes\Command\ShowRoutesCommand;
 use Symfony\Component\Console\Application;
