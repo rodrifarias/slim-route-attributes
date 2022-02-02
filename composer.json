@@ -1,6 +1,8 @@
 {
     "name": "rodrifarias/slim-route-attributes",
     "type": "library",
+    "description": "Slim Route Attributes is a route scanner that uses PHP attributes",
+    "keywords": ["api", "router", "route-controller", "route-attributes"],
     "authors": [
         {
             "name": "Rodrigo Farias",
