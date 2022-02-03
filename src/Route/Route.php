@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrifarias\SlimRouteAttributes;
+namespace Rodrifarias\SlimRouteAttributes\Route;
 
 use Stringable;
 

@@ -3,7 +3,7 @@
 namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\Route;
 
 use PHPUnit\Framework\TestCase;
-use Rodrifarias\SlimRouteAttributes\RouteParsed;
+use Rodrifarias\SlimRouteAttributes\Route\RouteParsed;
 
 class RouteParsedTest extends TestCase
 {

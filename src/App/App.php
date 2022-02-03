@@ -5,8 +5,8 @@ namespace Rodrifarias\SlimRouteAttributes\App;
 use Psr\Cache\InvalidArgumentException;
 use ReflectionException;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
-use Rodrifarias\SlimRouteAttributes\Route;
-use Rodrifarias\SlimRouteAttributes\ScanRoutes;
+use Rodrifarias\SlimRouteAttributes\Route\Route;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutesInterface;
 use Slim\App as SlimApp;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -18,9 +18,9 @@ class App extends SlimApp
      * @throws DirectoryNotFoundException
      * @throws InvalidArgumentException
      */
-    public function registerRoutes(string $path, bool $useCache = false): void
+    public function registerRoutes(string $path, ScanRoutesInterface $scanRoutes, bool $useCache = false): void
     {
-        $routes = $this->getRoutes($path, $useCache);
+        $routes = $this->getRoutes($path, $scanRoutes, $useCache);
 
         foreach ($routes as $route) {
             $method = $route->httpMethod;
@@ -34,24 +34,22 @@ class App extends SlimApp
 
     /**
      * @param string $path
+     * @param ScanRoutesInterface $scanRoutes
      * @param bool $cache
-     * @throws InvalidArgumentException
-     * @throws ReflectionException
-     * @throws DirectoryNotFoundException
      * @return Route[]
+     * @throws InvalidArgumentException
      */
-    private function getRoutes(string $path, bool $cache = false): array
+    private function getRoutes(string $path, ScanRoutesInterface $scanRoutes, bool $cache = false): array
     {
         $cacheSystem = new FilesystemAdapter();
-        $scan = new ScanRoutes();
 
         if (!$cache) {
-            return $scan->getRoutes($path);
+            return $scanRoutes->getRoutes($path);
         }
 
-        return $cacheSystem->get('app-routes', function (ItemInterface $item) use ($path, $scan) {
+        return $cacheSystem->get('app-routes', function (ItemInterface $item) use ($path, $scanRoutes) {
             $item->expiresAfter(10000);
-            return $scan->getRoutes($path);
+            return $scanRoutes->getRoutes($path);
         });
     }
 }

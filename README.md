@@ -15,11 +15,12 @@ Create file public/index.php.
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Rodrifarias\SlimRouteAttributes\App\AppSlimFactory;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 
 $pathDirControllers = __DIR__ . '/your-dir';
 
 $app = AppSlimFactory::create();
-$app->registerRoutes($pathDirControllers);
+$app->registerRoutes($pathDirControllers, new ScanRoutes());
 $app->run();
 ```
 
@@ -50,7 +51,7 @@ class HomeController
         return $response->withHeader('Content-type', 'application/json');
     }
 
-    #[Get('/optional[/{id:[0-9]+}]')]
+    #[Get('optional[/{id:[0-9]+}]')]
     public function optional(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $id = $args['id'] ?? '';
@@ -58,7 +59,7 @@ class HomeController
         return $response->withHeader('Content-type', 'application/json');
     }
 
-    #[Get('/{id:\d+}'), PublicAccess(true)]
+    #[Get('{id:\d+}'), PublicAccess(true)]
     public function show(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->getBody()->write('Hello ' . $args['id']);
@@ -72,21 +73,21 @@ class HomeController
         return $response->withHeader('Content-type', 'application/json');
     }
 
-    #[Put('/{id:\d+}')]
+    #[Put('{id:\d+}')]
     public function update(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->getBody()->write('Updated ' . $args['id']);
         return $response->withHeader('Content-type', 'application/json');
     }
 
-    #[Delete('/{id:\d+}')]
+    #[Delete('{id:\d+}')]
     public function delete(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->withHeader('Content-type', 'application/json');
         return $response->withStatus(204);
     }
 
-    #[Patch('/{id:\d+}')]
+    #[Patch('{id:\d+}')]
     public function updatePatch(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->getBody()->write('Updated Patch ' . $args['id']);
@@ -120,7 +121,7 @@ class HomeController
 ```
 ## Command to show all registered routes
 ```bash
-$ php vendor/bin/show-routes.php show-routes --path=/your-dir
+$ php vendor/bin/show-routes.php show-routes --path=your-dir
 ```
 
 | Route | Http Method | Controller Method | IsPublic |
@@ -128,15 +129,16 @@ $ php vendor/bin/show-routes.php show-routes --path=/your-dir
 | /     | GET         | Controller:method | yes      |
 
 ## Get list routes
+
 ```php
 <?php
 
-use Rodrifarias\SlimRouteAttributes\ScanRoutes;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
 $scan = new ScanRoutes();
-$routes = $scan->getRoutes(__DIR__ . '/tests');
+$routes = $scan->getRoutes(__DIR__ . '/your-dir');
 
 foreach ($routes as $route) {
     echo $route . PHP_EOL . PHP_EOL;

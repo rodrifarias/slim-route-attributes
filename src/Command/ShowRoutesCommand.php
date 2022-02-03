@@ -5,7 +5,8 @@ namespace Rodrifarias\SlimRouteAttributes\Command;
 use InvalidArgumentException;
 use ReflectionException;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
-use Rodrifarias\SlimRouteAttributes\ScanRoutes;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutesInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,6 +15,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ShowRoutesCommand extends Command
 {
+    public function __construct(private ScanRoutesInterface $scanRoutes, string $name = null)
+    {
+        parent::__construct($name);
+    }
+
     protected function configure(): void
     {
         $this->setName('show-routes')
@@ -50,8 +56,7 @@ class ShowRoutesCommand extends Command
      */
     private function getRowsRoutes(string $path): array
     {
-        $scan = new ScanRoutes();
-        $routes = $scan->getRoutes($path);
+        $routes = $this->scanRoutes->getRoutes($path);
         usort($routes, fn ($r1, $r2) => strcmp($r1->path, $r2->path));
 
         return array_map(fn ($r) => [

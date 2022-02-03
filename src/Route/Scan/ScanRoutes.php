@@ -1,16 +1,17 @@
 <?php
 
-namespace Rodrifarias\SlimRouteAttributes;
+namespace Rodrifarias\SlimRouteAttributes\Route\Scan;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use Rodrifarias\SlimRouteAttributes\Attributes\Validate\AttributesValidate;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
-use ReflectionException;
+use Rodrifarias\SlimRouteAttributes\Route\Route;
 
-class ScanRoutes
+class ScanRoutes implements ScanRoutesInterface
 {
     /**
      * @throws DirectoryNotFoundException
@@ -37,19 +38,27 @@ class ScanRoutes
         $it->rewind();
 
         while ($it->valid()) {
-            if (!$it->isDot() && file_exists($it->key())) {
-                $filename = pathinfo($it->getSubPathName(), PATHINFO_FILENAME);
-                $isPhpFile = str_ends_with($it->key(), '.php');
+            $pathFile = str_replace('\\\\', '\\', $it->key());
+            $pathFile = str_replace('//', '/', $pathFile);
+            $isValidFile = $this->isValidFile($pathFile, $it->isDot());
 
-                if ($isPhpFile) {
-                    $files[] = $this->extractNamespaceFile($it->key()) . '\\' . $filename;
-                }
+            if ($isValidFile) {
+                $filename = pathinfo($it->getSubPathName(), PATHINFO_FILENAME);
+                $files[] = $this->extractNamespaceFile($pathFile) . '\\' . $filename;
             }
 
             $it->next();
         }
 
         return $files;
+    }
+
+    private function isValidFile(string $pathFile, mixed $isDot): bool
+    {
+        $isPhpFile = str_ends_with($pathFile, '.php');
+        $isDependencyPath = str_contains($pathFile, 'vendor') || str_contains($pathFile, 'node_modules');
+
+        return !$isDot && file_exists($pathFile) && $isPhpFile && !$isDependencyPath;
     }
 
     private function extractNamespaceFile(string $file): string
@@ -61,12 +70,6 @@ class ScanRoutes
             while (($line = fgets($handler)) !== false) {
                 if (str_starts_with($line, 'namespace')) {
                     $parts = explode(' ', $line);
-
-                    if (!array_key_exists(1, $parts)) {
-                        var_dump($parts, $line);
-                        die;
-                    }
-
                     $ns = rtrim(trim($parts[1]), ';');
                     break;
                 }
@@ -85,30 +88,33 @@ class ScanRoutes
         $routes = [];
 
         foreach ($class as $cla) {
-            $reflectionClass = new ReflectionClass($cla);
+            try {
+                $reflectionClass = new ReflectionClass($cla);
 
-            if (!$reflectionClass->getAttributes()) {
-                continue;
-            }
-
-            $prefix = $this->prefixRoute($reflectionClass);
-
-            if (!$prefix) {
-                continue;
-            }
-
-            foreach ($reflectionClass->getMethods() as $method) {
-                if ($method->getAttributes()) {
-                    $infoRoute = $this->attributesMethodRoute($method);
-                    $routes[] = new Route(
-                        $reflectionClass->getName(),
-                        $infoRoute['classMethod'],
-                        $infoRoute['httpMethod'],
-                        $prefix . $infoRoute['path'],
-                        $infoRoute['publicAccess'],
-                        $infoRoute['middleware'],
-                    );
+                if (!$reflectionClass->getAttributes()) {
+                    continue;
                 }
+
+                $prefix = $this->prefixRoute($reflectionClass);
+
+                if (!$prefix) {
+                    continue;
+                }
+
+                foreach ($reflectionClass->getMethods() as $method) {
+                    if ($method->getAttributes()) {
+                        $infoRoute = $this->attributesMethodRoute($method);
+                        $routes[] = new Route(
+                            $reflectionClass->getName(),
+                            $infoRoute['classMethod'],
+                            $infoRoute['httpMethod'],
+                            $prefix . $infoRoute['path'],
+                            $infoRoute['publicAccess'],
+                            $infoRoute['middleware'],
+                        );
+                    }
+                }
+            } catch (\Exception) {
             }
         }
 

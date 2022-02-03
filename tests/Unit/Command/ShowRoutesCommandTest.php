@@ -4,6 +4,7 @@ namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\Command;
 
 use PHPUnit\Framework\TestCase;
 use Rodrifarias\SlimRouteAttributes\Command\ShowRoutesCommand;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -12,7 +13,7 @@ class ShowRoutesCommandTest extends TestCase
     public function testShouldShowOutputTableWithRoutes(): void
     {
         $app = new Application();
-        $app->add(new ShowRoutesCommand());
+        $app->add(new ShowRoutesCommand(new ScanRoutes()));
 
         $command = $app->find('show-routes');
         $commandTester = new CommandTester($command);

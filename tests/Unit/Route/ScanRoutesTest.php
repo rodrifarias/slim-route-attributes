@@ -4,8 +4,8 @@ namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\Route;
 
 use PHPUnit\Framework\TestCase;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
-use Rodrifarias\SlimRouteAttributes\Route;
-use Rodrifarias\SlimRouteAttributes\ScanRoutes;
+use Rodrifarias\SlimRouteAttributes\Route\Route;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 
 class ScanRoutesTest extends TestCase
 {

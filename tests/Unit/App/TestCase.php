@@ -5,6 +5,7 @@ namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\App;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Rodrifarias\SlimRouteAttributes\App\AppSlimFactory;
+use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 use Slim\App;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Headers;
@@ -16,7 +17,8 @@ class TestCase extends PHPUnitTestCase
     protected function getAppInstance(): App
     {
         $app = AppSlimFactory::create();
-        $app->registerRoutes(__DIR__ . '/../Route/RoutesControllers/Controller');
+        $scan = new ScanRoutes();
+        $app->registerRoutes(__DIR__ . '/../Route/RoutesControllers/Controller', $scan);
         return $app;
     }
 
