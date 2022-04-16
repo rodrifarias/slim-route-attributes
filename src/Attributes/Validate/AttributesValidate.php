@@ -14,9 +14,14 @@ class AttributesValidate
         return str_ends_with($attributeName, 'Middleware');
     }
 
+    public static function isMapRoutes(string $attributeName): bool
+    {
+        return str_ends_with($attributeName, 'Map');
+    }
+
     public static function isMethodHttp(string $attributeName): bool
     {
         $namespaceArray = explode('\\', $attributeName);
-        return in_array(end($namespaceArray), ['Get', 'Post', 'Put', 'Delete', 'Patch']);
+        return in_array(strtolower(end($namespaceArray)), ['get', 'post', 'put', 'delete', 'patch']);
     }
 }

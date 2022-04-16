@@ -36,17 +36,17 @@ class ScanRoutesTest extends TestCase
         $routesIncomplete = $scanRoutes->getRoutes($this->dirBase . 'IncompleteController');
 
         return [
-            'ShouldHave4RoutesMapped' => [7, $routes],
+            'ShouldHave9RoutesMapped' => [9, $routes],
             'ShouldNotRoutesWhenDirectoryIsEmpty' => [0, $emptyDirRoutes],
             'ShouldNotRoutesWhenDirectoryOnlyHaveClassWithoutAttributes' => [0, $routesClassWithoutAttributes],
             'ShouldHave1RouteWithMiddlewares' => [1, $filterRoutesMiddleware],
-            'ShouldHave3RouteMethodsGet' => [3, $filterRoutesMethodGet],
-            'ShouldHave2RouteMethodsPost' => [1, $filterRoutesMethodPost],
+            'ShouldHave3RouteMethodsGet' => [4, $filterRoutesMethodGet],
+            'ShouldHave2RouteMethodsPost' => [2, $filterRoutesMethodPost],
             'ShouldHave2RouteMethodsPut' => [1, $filterRoutesMethodPut],
             'ShouldHave2RouteMethodsDelete' => [1, $filterRoutesMethodDelete],
             'ShouldHave2RouteMethodsPatch' => [1, $filterRoutesMethodPatch],
             'ShouldHave2RoutesWithPublicAccessTrue' => [2, $filterRoutesPublicAccessTrue],
-            'ShouldHave2RoutesWithPublicAccessFalse' => [5, $filterRoutesPublicAccessFalse],
+            'ShouldHave2RoutesWithPublicAccessFalse' => [7, $filterRoutesPublicAccessFalse],
             'ShouldNotScanClassWithIncompleteAttributes' => [0, $routesIncomplete],
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace Rodrifarias\SlimRouteAttributes\Route\Scan;
 
+use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
@@ -21,7 +22,7 @@ class ScanRoutes implements ScanRoutesInterface
     public function getRoutes(string $path): array
     {
         if (!is_dir($path)) {
-            throw new DirectoryNotFoundException();
+            throw new DirectoryNotFoundException($path);
         }
 
         $files = $this->getFilesScan($path);
@@ -82,6 +83,7 @@ class ScanRoutes implements ScanRoutesInterface
 
     /**
      * @throws ReflectionException
+     * @return Route[]
      */
     private function scanClassFiles(array $class): array
     {
@@ -104,17 +106,36 @@ class ScanRoutes implements ScanRoutesInterface
                 foreach ($reflectionClass->getMethods() as $method) {
                     if ($method->getAttributes()) {
                         $infoRoute = $this->attributesMethodRoute($method);
-                        $routes[] = new Route(
-                            $reflectionClass->getName(),
-                            $infoRoute['classMethod'],
-                            $infoRoute['httpMethod'],
-                            $prefix . $infoRoute['path'],
-                            $infoRoute['publicAccess'],
-                            $infoRoute['middleware'],
-                        );
+                        $hasMapAndHttpMethod = $infoRoute['mapRoutes'] && array_key_exists('httpMethod', $infoRoute);
+
+                        if ($hasMapAndHttpMethod) {
+                            continue;
+                        }
+
+                        foreach ($infoRoute['mapRoutes'] as $mapRoute) {
+                            $routes[] = new Route(
+                                $reflectionClass->getName(),
+                                $infoRoute['classMethod'],
+                                strtolower($mapRoute),
+                                $prefix . $infoRoute['path'],
+                                $infoRoute['publicAccess'],
+                                $infoRoute['middleware'],
+                            );
+                        }
+
+                        if (array_key_exists('httpMethod', $infoRoute)) {
+                            $routes[] = new Route(
+                                $reflectionClass->getName(),
+                                $infoRoute['classMethod'],
+                                strtolower($infoRoute['httpMethod']),
+                                $prefix . $infoRoute['path'],
+                                $infoRoute['publicAccess'],
+                                $infoRoute['middleware'],
+                            );
+                        }
                     }
                 }
-            } catch (\Exception) {
+            } catch (Exception) {
             }
         }
 
@@ -132,6 +153,7 @@ class ScanRoutes implements ScanRoutesInterface
             'middleware' => [],
             'publicAccess' => false,
             'classMethod' => $reflectionMethod->getName(),
+            'mapRoutes' => [],
         ];
 
         foreach ($reflectionMethod->getAttributes() as $attribute) {
@@ -140,14 +162,28 @@ class ScanRoutes implements ScanRoutesInterface
             if (AttributesValidate::isMethodHttp($attribute->getName())) {
                 $infoRoute['httpMethod'] = $getNameMethodHttp($attribute->getName());
                 $infoRoute['path'] = $arguments ? $arguments[0] : '';
+                continue;
             }
 
             if (AttributesValidate::isPublicAccess($attribute->getName())) {
                 $infoRoute['publicAccess'] = $arguments ? $arguments[0] : '';
+                continue;
             }
 
             if (AttributesValidate::isMiddleware($attribute->getName())) {
                 $infoRoute['middleware'] = $arguments[0];
+                continue;
+            }
+
+            if (AttributesValidate::isMapRoutes($attribute->getName())) {
+                [$path, $methods] = $arguments;
+                $infoRoute['path'] = $path ?: '';
+
+                foreach ($methods as $method) {
+                    if (AttributesValidate::isMethodHttp($method)) {
+                        $infoRoute['mapRoutes'][] = $method;
+                    }
+                }
             }
         }
 

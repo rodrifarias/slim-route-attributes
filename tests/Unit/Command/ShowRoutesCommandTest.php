@@ -24,6 +24,8 @@ class ShowRoutesCommandTest extends TestCase
 +------------------------------+-------------+----------------------------+----------+
 | /home                        | GET         | HomeController:showAll     | Yes      |
 | /home                        | POST        | HomeController:create      | No       |
+| /home/map/test               | POST        | HomeController:mapTest     | No       |
+| /home/map/test               | GET         | HomeController:mapTest     | No       |
 | /home/optional[/{id:[0-9]+}] | GET         | HomeController:optional    | No       |
 | /home/{id:\d+}               | GET         | HomeController:show        | Yes      |
 | /home/{id:\d+}               | PUT         | HomeController:update      | No       |

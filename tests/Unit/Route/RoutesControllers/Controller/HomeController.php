@@ -6,6 +6,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Delete;
 use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Get;
+use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Map;
 use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Patch;
 use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Post;
 use Rodrifarias\SlimRouteAttributes\Attributes\HttpMethods\Put;
@@ -54,7 +55,7 @@ class HomeController
     }
 
     #[Delete('/{id:\d+}')]
-    public function delete(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+    public function delete(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $response->withHeader('Content-type', 'application/json');
         return $response->withStatus(204);
@@ -64,6 +65,19 @@ class HomeController
     public function updatePatch(RequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
     {
         $response->getBody()->write('Updated Patch ' . $args['id']);
+        return $response->withHeader('Content-type', 'application/json');
+    }
+
+    #[Map('/map/test', ['POST', 'GET'])]
+    public function mapTest(RequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $response->getBody()->write('Map Route with method [' . $request->getMethod() . ']');
+        return $response->withHeader('Content-type', 'application/json');
+    }
+
+    #[Map('/map/test/123', ['POST']), Get('/map/test')]
+    public function mapTestWithGet(RequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
         return $response->withHeader('Content-type', 'application/json');
     }
 }

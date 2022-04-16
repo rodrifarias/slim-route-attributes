@@ -74,4 +74,22 @@ class HomeTest extends TestCase
         $this->assertEquals('Updated Patch 123', $response->getBody());
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    public function testPathMapGet(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/home/map/test');
+        $response = $app->handle($request);
+        $this->assertEquals('Map Route with method [GET]', $response->getBody());
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    public function testPathMapPost(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/home/map/test');
+        $response = $app->handle($request);
+        $this->assertEquals('Map Route with method [POST]', $response->getBody());
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }

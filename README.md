@@ -119,6 +119,22 @@ class HomeController
     }
 }
 ```
+
+## Map Route
+You can use multiples http methods using map
+```php
+#[Route('/home')]
+class HomeController
+{
+    #[Map('/map', ['POST', 'GET'])]
+    public function mapPostGet(RequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $response->getBody()->write('Map With Post and Get');
+        return $response->withHeader('Content-type', 'application/json');
+    }
+}
+```
+
 ## Command to show all registered routes
 ```bash
 $ php vendor/bin/show-routes.php show-routes --path=your-dir
