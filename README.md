@@ -67,7 +67,7 @@ class HomeController
         return $response->withStatus(200);
     }
 
-    #[Post, Middleware([MiddlewareAfter::class, MiddlewareBefore::class])]
+    #[Post, Middleware([MiddlewareAfter::class, new MiddlewareBefore()])]
     public function create(RequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $response->withHeader('Content-type', 'application/json');
