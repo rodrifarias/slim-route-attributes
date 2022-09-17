@@ -4,6 +4,7 @@ namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\Route;
 
 use PHPUnit\Framework\TestCase;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
+use Rodrifarias\SlimRouteAttributes\Exception\MiddlewareShouldImplementsMiddlewareInterfaceException;
 use Rodrifarias\SlimRouteAttributes\Route\Route;
 use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
 
@@ -56,5 +57,15 @@ class ScanRoutesTest extends TestCase
         $this->expectException(DirectoryNotFoundException::class);
         $scanRoutes = new ScanRoutes();
         $scanRoutes->getRoutes('/dir-not-exists');
+    }
+
+    public function testShouldGenerateExceptionWhenScanRouteAndRouteHasAIncorrectDeclarationMiddleware(): void
+    {
+        $this->expectException(MiddlewareShouldImplementsMiddlewareInterfaceException::class);
+        $this->expectExceptionMessage('Middleware should implements MiddlewareInterface');
+        $this->expectExceptionCode(500);
+
+        $scanRoutes = new ScanRoutes();
+        $scanRoutes->getRoutes($this->dirBase . 'ControllerWithIncorrectMiddlewareDeclaration');
     }
 }

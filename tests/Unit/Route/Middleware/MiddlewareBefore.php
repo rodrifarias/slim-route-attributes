@@ -10,13 +10,17 @@ use Slim\Psr7\Response;
 
 class MiddlewareBefore implements MiddlewareInterface
 {
+    public function __construct(private string $message)
+    {
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
         $existingContent = (string) $response->getBody();
 
         $response = new Response();
-        $response->getBody()->write('MIDDLEWARE BEFORE - ' . $existingContent);
+        $response->getBody()->write($this->message . ' - ' . $existingContent);
 
         return $response;
     }

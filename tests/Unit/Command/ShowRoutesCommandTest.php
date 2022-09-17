@@ -17,7 +17,7 @@ class ShowRoutesCommandTest extends TestCase
 
         $command = $app->find('show-routes');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['--path' => 'tests']);
+        $commandTester->execute(['--path' => 'tests/Unit/Route/RoutesControllers/Controller']);
 
         $expectedString = '+------------------------------+-------------+----------------------------+----------+
 | Route                        | Http Method | Controller Method          | IsPublic |

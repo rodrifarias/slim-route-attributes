@@ -27,7 +27,8 @@ class App extends SlimApp
             $appRoute = $this->$method($route->path, [ $route->className, $route->classMethod ]);
 
             foreach ($route->middleware as $middleware) {
-                $appRoute->add(new $middleware());
+                $getClassContainer = is_string($middleware) && $this->container;
+                $appRoute->add($getClassContainer ? $this->container->get($middleware) : $middleware);
             }
         }
     }

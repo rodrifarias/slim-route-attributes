@@ -3,6 +3,7 @@
 namespace Rodrifarias\SlimRouteAttributes\Tests\Unit\App;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Rodrifarias\SlimRouteAttributes\App\AppSlimFactory;
 use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
@@ -14,6 +15,38 @@ use Slim\Psr7\Uri;
 
 class TestCase extends PHPUnitTestCase
 {
+    public function get(string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        return $this->request('GET', $path, $headers, $cookies, $serverParams);
+    }
+
+    public function post(string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        return $this->request('POST', $path, $headers, $cookies, $serverParams);
+    }
+
+    public function put(string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        return $this->request('PUT', $path, $headers, $cookies, $serverParams);
+    }
+
+    public function delete(string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        return $this->request('DELETE', $path, $headers, $cookies, $serverParams);
+    }
+
+    public function patch(string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        return $this->request('PATCH', $path, $headers, $cookies, $serverParams);
+    }
+
+    private function request(string $method, string $path, array $headers = [], array $cookies = [], array $serverParams = []): ResponseInterface
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest($method, $path, $headers, $cookies, $serverParams);
+        return $app->handle($request);
+    }
+
     protected function getAppInstance(): App
     {
         $app = AppSlimFactory::create();

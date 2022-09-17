@@ -3,6 +3,7 @@
 namespace Rodrifarias\SlimRouteAttributes\Route\Scan;
 
 use Exception;
+use Psr\Http\Server\MiddlewareInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
@@ -10,6 +11,7 @@ use ReflectionException;
 use ReflectionMethod;
 use Rodrifarias\SlimRouteAttributes\Attributes\Validate\AttributesValidate;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
+use Rodrifarias\SlimRouteAttributes\Exception\MiddlewareShouldImplementsMiddlewareInterfaceException;
 use Rodrifarias\SlimRouteAttributes\Route\Route;
 
 class ScanRoutes implements ScanRoutesInterface
@@ -135,7 +137,10 @@ class ScanRoutes implements ScanRoutesInterface
                         }
                     }
                 }
-            } catch (Exception) {
+            } catch (Exception $exception) {
+                if ($exception instanceof MiddlewareShouldImplementsMiddlewareInterfaceException) {
+                    throw $exception;
+                }
             }
         }
 
@@ -171,7 +176,25 @@ class ScanRoutes implements ScanRoutesInterface
             }
 
             if (AttributesValidate::isMiddleware($attribute->getName())) {
-                $infoRoute['middleware'] = $arguments[0];
+                $middlewares = $arguments[0];
+
+                $middlewaresImplementsMiddlewareInterface = array_filter($middlewares, function ($m) {
+                    $isMiddlewareInterface = false;
+                    $instanceofMiddlewareInterface = $m instanceof MiddlewareInterface;
+
+                    if (is_string($m) && class_exists($m)) {
+                        $reflectionClass = new ReflectionClass($m);
+                        $isMiddlewareInterface = $reflectionClass->implementsInterface(MiddlewareInterface::class);
+                    }
+
+                    if ($isMiddlewareInterface || $instanceofMiddlewareInterface) {
+                        return true;
+                    }
+
+                    throw new MiddlewareShouldImplementsMiddlewareInterfaceException();
+                });
+
+                $infoRoute['middleware'] = $middlewaresImplementsMiddlewareInterface;
                 continue;
             }
 
