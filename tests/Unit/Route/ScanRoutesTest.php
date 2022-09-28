@@ -7,6 +7,8 @@ use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
 use Rodrifarias\SlimRouteAttributes\Exception\MiddlewareShouldImplementsMiddlewareInterfaceException;
 use Rodrifarias\SlimRouteAttributes\Route\Route;
 use Rodrifarias\SlimRouteAttributes\Route\Scan\ScanRoutes;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ScanRoutesTest extends TestCase
 {
@@ -67,5 +69,30 @@ class ScanRoutesTest extends TestCase
 
         $scanRoutes = new ScanRoutes();
         $scanRoutes->getRoutes($this->dirBase . 'ControllerWithIncorrectMiddlewareDeclaration');
+    }
+
+    public function testShouldGetRoutesFromCache(): void
+    {
+        $cacheSystem = new FilesystemAdapter();
+        $cacheSystem->delete('scan-app-routes');
+        $cacheSystem->get('scan-app-routes', fn (ItemInterface $item) => [
+            new Route('CLASS_NAME', 'CLASS_METHOD', 'HTTP_METHOD', '/api', true, []),
+            new Route('CLASS_NAME_2', 'CLASS_METHOD_2', 'HTTP_METHOD_2', '/api-2', false, []),
+        ]);
+
+        $scanRoutes = new ScanRoutes();
+        $routes = $scanRoutes->getRoutes($this->dirBase . 'Controller', true);
+
+        $this->assertCount(2, $routes);
+        $this->assertSame('CLASS_NAME', $routes[0]->className);
+        $this->assertSame('CLASS_NAME_2', $routes[1]->className);
+        $this->assertSame('CLASS_METHOD', $routes[0]->classMethod);
+        $this->assertSame('CLASS_METHOD_2', $routes[1]->classMethod);
+        $this->assertSame('HTTP_METHOD', $routes[0]->httpMethod);
+        $this->assertSame('HTTP_METHOD_2', $routes[1]->httpMethod);
+        $this->assertSame('/api', $routes[0]->path);
+        $this->assertSame('/api-2', $routes[1]->path);
+        $this->assertTrue($routes[0]->publicAccess);
+        $this->assertFalse($routes[1]->publicAccess);
     }
 }

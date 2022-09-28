@@ -13,6 +13,8 @@ use Rodrifarias\SlimRouteAttributes\Attributes\Validate\AttributesValidate;
 use Rodrifarias\SlimRouteAttributes\Exception\DirectoryNotFoundException;
 use Rodrifarias\SlimRouteAttributes\Exception\MiddlewareShouldImplementsMiddlewareInterfaceException;
 use Rodrifarias\SlimRouteAttributes\Route\Route;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ScanRoutes implements ScanRoutesInterface
 {
@@ -21,14 +23,24 @@ class ScanRoutes implements ScanRoutesInterface
      * @throws ReflectionException
      * @return Route[]
      */
-    public function getRoutes(string $path): array
+    public function getRoutes(string $path, bool $fromCache = false): array
     {
         if (!is_dir($path)) {
             throw new DirectoryNotFoundException($path);
         }
 
-        $files = $this->getFilesScan($path);
-        return $this->scanClassFiles($files);
+        if (!$fromCache) {
+            $files = $this->getFilesScan($path);
+            return $this->scanClassFiles($files);
+        }
+
+        $cacheSystem = new FilesystemAdapter();
+
+        return $cacheSystem->get('scan-app-routes', function (ItemInterface $item) use ($path) {
+            $item->expiresAfter(10000);
+            $files = $this->getFilesScan($path);
+            return $this->scanClassFiles($files);
+        });
     }
 
     /**

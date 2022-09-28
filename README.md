@@ -156,6 +156,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 $scan = new ScanRoutes();
 $routes = $scan->getRoutes(__DIR__ . '/your-dir');
 
+// you can use getRoutes with cache
+$routes = $scan->getRoutes(__DIR__ . '/your-dir', true);
+
 foreach ($routes as $route) {
     echo $route . PHP_EOL . PHP_EOL;
 }
